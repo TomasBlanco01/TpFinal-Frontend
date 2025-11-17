@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography, Paper, Grid, Button } from "@mui/material";
 import { motion } from "framer-motion";
-import api from "../services/api"; // ⬅ Asegúrate de que la ruta sea correcta
+import api from "./api";
 import EventBusyIcon from "@mui/icons-material/EventBusy";
 import HomeIcon from "@mui/icons-material/Home";
 import { useNavigate } from "react-router-dom";

@@ -3,7 +3,7 @@ import {
   Box, Typography, TextField, Button, Grid, Paper, Divider, MenuItem
 } from "@mui/material";
 import { motion } from "framer-motion";
-import api from "./api"; // <-- asegurate que la ruta sea correcta
+import api from "./api";
 
 export default function AdminPage() {
   const user = JSON.parse(localStorage.getItem("user"));

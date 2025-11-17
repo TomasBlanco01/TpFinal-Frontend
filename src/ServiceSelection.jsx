@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Box, Typography, Grid, Card, CardActionArea } from "@mui/material";
 import { motion } from "framer-motion";
 import CategoryModal from "./CategoryModal";
-import api from "../api"; // Usamos instancia con VITE_API_URL
-
+import api from "./api";
 import ContentCutIcon from "./assets/barber-shop.png";
 import FitnessCenterIcon from "./assets/weightlifter.png";
 import SpaIcon from "./assets/head-massage.png";

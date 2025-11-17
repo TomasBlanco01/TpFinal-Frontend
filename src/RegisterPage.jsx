@@ -7,7 +7,7 @@ import {
   Paper
 } from "@mui/material";
 import { motion } from "framer-motion";
-import api from "../api"; // Usa la instancia con VITE_API_URL
+import api from "./api";
 import { useNavigate, Link } from "react-router-dom";
 
 export default function RegisterPage() {
