@@ -2,14 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Box, Typography, Grid, Card, CardActionArea } from "@mui/material";
 import { motion } from "framer-motion";
 import CategoryModal from "./CategoryModal";
-import axios from "axios";
+import api from "../api"; // Usamos instancia con VITE_API_URL
 
-import ContentCutIcon from "./assets/barber-shop.png";   
-import FitnessCenterIcon from "./assets/weightlifter.png"; 
-import SpaIcon from "./assets/head-massage.png";            
-import FaceRetouchingNaturalIcon from "./assets/makeup.png"; 
-import EmojiPeopleIcon from "./assets/tattoo.png";     
-import ContentPasteGoIcon from "./assets/hair-removal.png"; 
+import ContentCutIcon from "./assets/barber-shop.png";
+import FitnessCenterIcon from "./assets/weightlifter.png";
+import SpaIcon from "./assets/head-massage.png";
+import FaceRetouchingNaturalIcon from "./assets/makeup.png";
+import EmojiPeopleIcon from "./assets/tattoo.png";
+import ContentPasteGoIcon from "./assets/hair-removal.png";
 
 export default function ServiceSelection({ onSelectEmpresa }) {
   const [categorias, setCategorias] = useState([]);
@@ -27,8 +27,8 @@ export default function ServiceSelection({ onSelectEmpresa }) {
   };
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3001/api/categorias")
+    api
+      .get("/categorias")
       .then((res) => setCategorias(res.data))
       .catch((err) => console.error("Error al obtener categorías:", err));
   }, []);
@@ -37,14 +37,13 @@ export default function ServiceSelection({ onSelectEmpresa }) {
     setSelectedCategory(category);
     setOpenModal(true);
     try {
-      const res = await axios.get(`http://localhost:3001/api/empresas/categoria/${category.id}`);
+      const res = await api.get(`/empresas/categoria/${category.id}`);
       setEmpresas(res.data || []);
     } catch (err) {
       console.error("Error al obtener empresas:", err);
       setEmpresas([]);
     }
   };
-
 
   return (
     <Box

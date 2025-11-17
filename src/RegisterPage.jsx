@@ -4,14 +4,10 @@ import {
   TextField,
   Button,
   Typography,
-  Paper,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
+  Paper
 } from "@mui/material";
 import { motion } from "framer-motion";
-import axios from "axios";
+import api from "../api"; // Usa la instancia con VITE_API_URL
 import { useNavigate, Link } from "react-router-dom";
 
 export default function RegisterPage() {
@@ -19,21 +15,25 @@ export default function RegisterPage() {
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [contraseña, setContraseña] = useState("");
-  const [rol, setRol] = useState("cliente");
   const [error, setError] = useState("");
 
   const handleRegister = async () => {
     try {
-      await axios.post("http://localhost:3001/api/auth/register", {
+      await api.post("/auth/register", {
         nombre,
         email,
         contraseña,
-        rol,
       });
+
       navigate("/auth/login");
     } catch (err) {
       console.error(err);
-      setError("Error al registrar el usuario. Verifica los datos.");
+
+      const mensaje =
+        err.response?.data?.message ||
+        "Error al registrar el usuario. Verifica los datos.";
+
+      setError(mensaje);
     }
   };
 

@@ -76,7 +76,6 @@ export default function NavBar() {
             TurnosApp
           </Typography>
 
-          {/* DESKTOP */}
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
             {links.map((link, idx) => (
               <motion.div key={idx} whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }}>

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Box, TextField, Button, Typography, Paper } from "@mui/material";
 import { motion } from "framer-motion";
-import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import api from "../services/api"; // ⬅ usamos tu axios configurado
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -12,13 +12,16 @@ export default function LoginPage() {
 
   const handleLogin = async () => {
     try {
-      const res = await axios.post("http://localhost:3001/api/auth/login", {
+      setError("");
+
+      const res = await api.post("/auth/login", {
         email,
         contraseña,
       });
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
+
       navigate("/");
     } catch (err) {
       console.error(err);

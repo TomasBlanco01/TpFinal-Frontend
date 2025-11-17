@@ -3,7 +3,7 @@ import {
   Box, Typography, TextField, Button, Grid, Paper, Divider, MenuItem
 } from "@mui/material";
 import { motion } from "framer-motion";
-import axios from "axios";
+import api from "./api"; // <-- asegurate que la ruta sea correcta
 
 export default function AdminPage() {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -19,32 +19,43 @@ export default function AdminPage() {
     slogan: "",
     duracion_turno_min: "",
     categoria_id: "",
-    admin_id: user?.id || null,
+    admin_id: user?.id ?? null,
   });
 
   const fetchEmpresas = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/api/empresas");
-      setEmpresas(res.data);
+      const res = await api.get("/empresas");
+      setEmpresas(res.data ?? []);
     } catch (err) {
-      console.error(err);
-      alert("Error al cargar empresas ❌");
+      console.error("fetchEmpresas:", err);
+      alert("Error al cargar empresas ❌\n" + (err.response?.data?.message || err.message));
     }
   };
 
-
   const fetchEmpresa = async (id) => {
+    if (!id) return;
     try {
-      const res = await axios.get(`http://localhost:3001/api/empresas/${id}`);
-      setForm(res.data);
+      const res = await api.get(`/empresas/${id}`);
+      const data = res.data ?? {};
+      setForm({
+        id: data.id ?? "",
+        nombre: data.nombre ?? "",
+        direccion: data.direccion ?? "",
+        telefono: data.telefono ?? "",
+        slogan: data.slogan ?? "",
+        duracion_turno_min: data.duracion_turno_min ?? "",
+        categoria_id: data.categoria_id ?? "",
+        admin_id: data.admin_id ?? user?.id ?? null,
+      });
     } catch (err) {
-      console.error(err);
-      alert("Error al cargar datos de la empresa ❌");
+      console.error("fetchEmpresa:", err);
+      alert("Error al cargar datos de la empresa ❌\n" + (err.response?.data?.message || err.message));
     }
   };
 
   useEffect(() => {
     fetchEmpresas();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSelectEmpresa = (e) => {
@@ -59,45 +70,68 @@ export default function AdminPage() {
         slogan: "",
         duracion_turno_min: "",
         categoria_id: "",
-        admin_id: user?.id || null,
+        admin_id: user?.id ?? null,
       });
     } else {
       fetchEmpresa(id);
     }
   };
 
-  const handleChange = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
-
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    // si el campo es duracion_turno_min lo convertimos a número (opcional)
+    if (name === "duracion_turno_min") {
+      const numeric = value === "" ? "" : Number(value);
+      setForm((p) => ({ ...p, [name]: numeric }));
+    } else {
+      setForm((p) => ({ ...p, [name]: value }));
+    }
+  };
 
   const handleSave = async () => {
     try {
       setLoading(true);
       if (form.id) {
-        await axios.put(`http://localhost:3001/api/empresas/${form.id}`, form);
+        await api.put(`/empresas/${form.id}`, form);
         alert("Cambios guardados correctamente ✔");
       } else {
-        await axios.post("http://localhost:3001/api/empresas", form);
-        alert("Empresa creada correctamente 🎉");
+        const res = await api.post("/empresas", form);
+        // si la API devuelve la empresa creada, la seleccionamos
+        const created = res.data ?? null;
+        if (created?.id) {
+          setSelectedId(created.id);
+          setForm({
+            id: created.id,
+            nombre: created.nombre ?? "",
+            direccion: created.direccion ?? "",
+            telefono: created.telefono ?? "",
+            slogan: created.slogan ?? "",
+            duracion_turno_min: created.duracion_turno_min ?? "",
+            categoria_id: created.categoria_id ?? "",
+            admin_id: created.admin_id ?? user?.id ?? null,
+          });
+          alert("Empresa creada correctamente 🎉");
+        } else {
+          alert("Empresa creada correctamente 🎉");
+        }
       }
-      fetchEmpresas();
+      await fetchEmpresas();
     } catch (err) {
-      console.error(err);
-      alert("Error al guardar empresa ❌");
+      console.error("handleSave:", err);
+      alert("Error al guardar empresa ❌\n" + (err.response?.data?.message || err.message));
     } finally {
       setLoading(false);
     }
   };
-
 
   const handleDelete = async () => {
     if (!form.id) return alert("No hay empresa para eliminar");
     if (!window.confirm("¿Eliminar esta empresa?")) return;
     try {
       setLoading(true);
-      await axios.delete(`http://localhost:3001/api/empresas/${form.id}`);
-      alert("Empresa eliminada ❌");
+      await api.delete(`/empresas/${form.id}`);
+      alert("Empresa eliminada ✔");
       setSelectedId("");
-      fetchEmpresas();
       setForm({
         id: "",
         nombre: "",
@@ -106,11 +140,12 @@ export default function AdminPage() {
         slogan: "",
         duracion_turno_min: "",
         categoria_id: "",
-        admin_id: user?.id || null,
+        admin_id: user?.id ?? null,
       });
+      await fetchEmpresas();
     } catch (err) {
-      console.error(err);
-      alert("Error al eliminar empresa ❌");
+      console.error("handleDelete:", err);
+      alert("Error al eliminar empresa ❌\n" + (err.response?.data?.message || err.message));
     } finally {
       setLoading(false);
     }
@@ -120,8 +155,7 @@ export default function AdminPage() {
     <Box sx={{
       minHeight: "auto", display: "flex", justifyContent: "center", p: 4,
       background: "linear-gradient(180deg, #EDE7F6 0%, #ffffff 100%)"
-    }}
-    >
+    }}>
       <Paper
         component={motion.div}
         initial={{ opacity: 0, y: 50 }}
@@ -137,8 +171,13 @@ export default function AdminPage() {
           Gestiona empresas, crea nuevas o edita sus datos
         </Typography>
 
-        <TextField select fullWidth label="Seleccionar Empresa"
-          value={selectedId} onChange={handleSelectEmpresa} sx={{ mb: 3 }}
+        <TextField
+          select
+          fullWidth
+          label="Seleccionar Empresa"
+          value={selectedId}
+          onChange={handleSelectEmpresa}
+          sx={{ mb: 3 }}
         >
           {empresas.map((e) => (
             <MenuItem key={e.id} value={e.id}>{e.nombre}</MenuItem>
@@ -156,8 +195,10 @@ export default function AdminPage() {
                   fullWidth
                   label={key.replace(/_/g, " ").toUpperCase()}
                   name={key}
-                  value={value || ""}
+                  value={value ?? ""}
                   onChange={handleChange}
+                  // si es duracion_turno_min mostramos type number
+                  type={key === "duracion_turno_min" ? "number" : "text"}
                 />
               </Grid>
             ))}
@@ -169,7 +210,7 @@ export default function AdminPage() {
           </Button>
 
           {form.id && (
-            <Button variant="outlined" color="error" onClick={handleDelete}>
+            <Button variant="outlined" color="error" onClick={handleDelete} disabled={loading}>
               Eliminar
             </Button>
           )}

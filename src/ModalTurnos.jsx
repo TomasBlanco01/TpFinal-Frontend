@@ -38,7 +38,7 @@ export default function ModalTurnos({ open, onClose, empresa, fechaSeleccionada 
 
   useEffect(() => {
     if (empresa && open) {
-      api.get(`/api/empresas/horarios/${empresa.id}`)
+      api.get(`/empresas/horarios/${empresa.id}`)
         .then(res => {
           setHorarios(res.data);
           if (fechaSeleccionada) {
@@ -66,7 +66,7 @@ export default function ModalTurnos({ open, onClose, empresa, fechaSeleccionada 
   const cargarOcupados = async () => {
     try {
       const res = await api.get(
-        `/api/turnos/ocupados?empresa_id=${empresa.id}&fecha=${fechaSeleccionada}`
+        `/turnos/ocupados?empresa_id=${empresa.id}&fecha=${fechaSeleccionada}`
       );
       setOcupados(res.data.map(t => t.hora));
     } catch (e) {
@@ -120,7 +120,7 @@ export default function ModalTurnos({ open, onClose, empresa, fechaSeleccionada 
 
   const confirmarReserva = async () => {
     try {
-      await api.post("/api/turnos/reservar", {
+      await api.post("/turnos/reservar", {
         empresa_id: empresa.id,
         fecha: fechaSeleccionada,
         hora: turnoSeleccionado,

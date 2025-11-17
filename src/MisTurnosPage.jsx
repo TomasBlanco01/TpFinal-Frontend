@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography, Paper, Grid, Button } from "@mui/material";
 import { motion } from "framer-motion";
-import api from "./api";
+import api from "../services/api"; // ⬅ Asegúrate de que la ruta sea correcta
 import EventBusyIcon from "@mui/icons-material/EventBusy";
 import HomeIcon from "@mui/icons-material/Home";
 import { useNavigate } from "react-router-dom";
@@ -12,7 +12,7 @@ export default function MisTurnosPage() {
 
   useEffect(() => {
     api
-      .get("/api/turnos/mis-turnos")
+      .get("/turnos/mis-turnos") // ⬅ Ya no ponemos /api
       .then((res) => setTurnos(res.data))
       .catch((err) => console.error("Error cargando mis turnos:", err));
   }, []);
@@ -21,7 +21,7 @@ export default function MisTurnosPage() {
     if (!window.confirm("¿Seguro que deseas cancelar este turno?")) return;
 
     try {
-      await api.delete(`/api/turnos/cancelar/${turnoId}`);
+      await api.delete(`/turnos/cancelar/${turnoId}`); // ⬅ Sin /api
 
       setTurnos((prev) => prev.filter((t) => t.id !== turnoId));
       alert("Turno cancelado correctamente");
