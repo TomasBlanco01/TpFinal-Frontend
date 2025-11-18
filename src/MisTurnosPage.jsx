@@ -34,7 +34,7 @@ export default function MisTurnosPage() {
   return (
     <Box
       sx={{
-        minHeight: "90vh",
+        maxHeight: "100vh",
         background: "linear-gradient(180deg, #EDE7F6 0%, #ffffff 100%)",
         p: 4,
         display: "flex",
